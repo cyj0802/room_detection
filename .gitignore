@@ -1,0 +1,59 @@
+# --- Python 기본 ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# --- 가상환경 ---
+.venv/
+venv/
+env/
+ENV/
+*.env
+*.venv
+
+# --- IDE / OS 파일 ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- 로그/캐시 ---
+*.log
+*.pot
+*.pyc
+*.pkl
+*.db
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- Uvicorn / FastAPI 실행 관련 ---
+*.pid
+
+# --- Jupyter Notebook ---
+.ipynb_checkpoints/
+
+# --- 테스트 ---
+.tox/
+.mypy_cache/
+.pyre/
+
+# --- 환경 변수 파일 ---
+.env
+.env.local
+.env.*.local
+
+# --- 프로젝트별 데이터 ---
+/data/
+/runs/
+/checkpoints/
+/models/
