@@ -33,7 +33,7 @@ class FurnitureDetector:
         Output schema:
         {
           "type": "furniture",
-          "items": [{"id": "f1", "name": str, "bbox": [x,y,w,h], "score": float}],
+          "items": [{"class": str, "poly": [x,y,w,h]}],
           "meta": {"image": "..."}
         }
         """
@@ -48,16 +48,13 @@ class FurnitureDetector:
         if r.boxes is not None and len(r.boxes) > 0:
             xyxy = r.boxes.xyxy.cpu().numpy().tolist()
             cls = r.boxes.cls.cpu().numpy().tolist()
-            confs = r.boxes.conf.cpu().numpy().tolist()
             for i, (x1, y1, x2, y2) in enumerate(xyxy):
                 w = int(x2 - x1)
                 h = int(y2 - y1)
                 items.append(
                     {
-                        "id": f"f{i+1}",
-                        "name": names.get(int(cls[i]), str(int(cls[i]))),
-                        "bbox": [int(x1), int(y1), w, h],
-                        "score": float(confs[i]),
+                        "class": names.get(int(cls[i]), str(int(cls[i]))),
+                        "poly": [int(x1), int(y1), w, h],
                     }
                 )
 
@@ -68,7 +65,7 @@ class FurnitureDetector:
 _furniture_singleton: Optional[FurnitureDetector] = None
 
 
-def load_furniture_detector(weights: str | Path, device: Optional[str] = None) -> FurnitureDetector:
+def load_furniture_segmentor(weights: str | Path, device: Optional[str] = None) -> FurnitureDetector:
     global _furniture_singleton
     if _furniture_singleton is None:
         _furniture_singleton = FurnitureDetector(weights, device)

@@ -33,7 +33,7 @@ class RoomsSegmentor:
         Output schema:
         {
           "type": "rooms",
-          "items": [{"id": "r1", "name": str, "poly": [[x,y],...], "score": float}],
+          "items": [{"class": str, "poly": [[x,y],...]}],
           "meta": {"image": "..."}
         }
         """
@@ -55,10 +55,8 @@ class RoomsSegmentor:
                 pts = poly.tolist()
                 items.append(
                     {
-                        "id": f"r{i+1}",
-                        "name": name,
+                        "class": name,
                         "poly": [[int(x), int(y)] for x, y in pts],
-                        "score": float(confs[i]),
                     }
                 )
         else:
@@ -77,10 +75,8 @@ class RoomsSegmentor:
                     ]
                     items.append(
                         {
-                            "id": f"r{i+1}",
                             "name": name,
                             "poly": rect,
-                            "score": float(confs[i]),
                         }
                     )
 
