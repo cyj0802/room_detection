@@ -1,9 +1,10 @@
 # app/api/jobs.py
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks, HTTPException
-from app.services.pipeline import save_upload, JOBS, run_stage_walls
-from app.services.pipeline import JOBS, run_stage_openings
-from app.services.pipeline import JOBS, run_stage_rooms
-from app.services.pipeline import JOBS, run_stage_furniture
+from app.services.pipeline import (
+    save_upload, JOBS,
+    run_stage_walls, run_stage_openings, run_stage_rooms, run_stage_furniture,
+    run_stage_rooms_ocr,  
+)
 
 from fastapi.responses import FileResponse
 from pathlib import Path
@@ -97,6 +98,30 @@ async def get_rooms_json(job_id: str):
         raise HTTPException(status_code=404, detail="rooms.json not ready")
     return FileResponse(p, media_type="application/json", filename="rooms.json")
 
+# OCR 후처리
+@router.post("/{job_id}/rooms/ocr/run")
+async def run_rooms_ocr(job_id: str):
+    job = JOBS.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+    await run_stage_rooms_ocr(job)
+    return {
+        "ok": True,
+        "stage": job["stage"],
+        "rooms_ocr_json": job["results"].get("rooms_ocr_json")
+    }
+
+# OCR 후처리 json 파일
+@router.get("/{job_id}/rooms_ocr.json")
+async def get_rooms_ocr_json(job_id: str):
+    job = JOBS.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+    p = job["results"].get("rooms_ocr_json")
+    if not p or not Path(p).exists():
+        raise HTTPException(status_code=404, detail="rooms_ocr.json not ready")
+    return FileResponse(p, media_type="application/json", filename="rooms_ocr.json")
+
 # furniture 찾기
 @router.post("/{job_id}/furniture/run")
 async def run_furniture(job_id: str):
@@ -106,7 +131,7 @@ async def run_furniture(job_id: str):
     await run_stage_furniture(job)
     return {"ok": True, "stage": job["stage"], "furniture_json": job["results"].get("furniture_json")}
 
-# 생성된 opening json 확인하는 코드
+# 생성된 furniture json 확인하는 코드
 @router.get("/{job_id}/furniture.json")
 async def get_furniture_json(job_id: str):
     job = JOBS.get(job_id)

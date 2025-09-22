@@ -12,7 +12,7 @@ from app.inference.openings import load_openings_detector
 from app.inference.rooms import load_rooms_segmentor
 from app.inference.furniture import load_furniture_segmentor
 
-
+from app.services.rooms_ocr import annotate_rooms_with_ocr
 
 BASE = Path("data/jobs")
 BASE.mkdir(parents=True, exist_ok=True)
@@ -108,6 +108,23 @@ async def run_stage_rooms(job: dict):
         "stage": job["stage"],
         "payload": res,  # {"type":"rooms","items":[...],"meta":{...}}
     })
+
+# OCR 방 후처리
+async def run_stage_rooms_ocr(job: dict):
+    # rooms.json 존재 확인
+    rooms_path = job["results"].get("rooms_json")
+    if not rooms_path or not Path(rooms_path).exists():
+        job["log"].append("rooms.json not found; run rooms stage first.")
+        return
+
+    with open(rooms_path, "r", encoding="utf-8") as f:
+        rooms_json = json.load(f)
+
+    res = annotate_rooms_with_ocr(job["image_path"], rooms_json)  # dict
+    out_path = _save_json(job["job_id"], "rooms_ocr.json", res)
+    job["results"]["rooms_ocr_json"] = out_path
+    job["stage"] = "ROOMS_OCR_DONE"
+
 
 # 가구 탐지
 async def run_stage_furniture(job: dict):
