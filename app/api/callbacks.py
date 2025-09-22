@@ -1,4 +1,3 @@
-# app/api/callbacks.py
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.services.pipeline import JOBS, proceed_next_after_callback
@@ -7,8 +6,8 @@ router = APIRouter(prefix="/v1/callbacks", tags=["callbacks"])
 
 class UnrealCallback(BaseModel):
     job_id: str
-    stage: str   # ex) "WALLS_SENT"
-    status: str  # "ok" or "error"
+    stage: str   
+    status: str  
     message: str | None = None
 
 @router.post("/unreal")
